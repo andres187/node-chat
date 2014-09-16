@@ -8,21 +8,31 @@ var mongo = require('mongodb').MongoClient,
 		client.on('connection', function(socket){
 				
 			var col = db.collection('messages');
+			
+			    sendStatus = function(s) {
+				socket.emit('status', s);
+				};
+
+		
+
 
 			socket.on('input', function(data){
-
+				
 				var name = data.name,
 				    message = data.message;
 				    whitespacePattern = /^\s*$/;
 	if(whitespacePattern.test(name) || whitespacePattern.test(message)){ 
-			console.log('Invalido');
+			sendStatus('Nombre y mensaje son requeridos!');
 
 	}else{
 		col.insert({name: name, message: message}, function() {
-                                console.log('Adentro');
+			sendStatus({					
+					message: "Mesaje enviado",
+					clear: true
+				});	
 			});		
 		    }
-		} );		
+		});		
 	});
 });
 
