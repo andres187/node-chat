@@ -24,6 +24,7 @@
 			},
 			
 			status = getNode('.chat-status span'),
+			messages = getNode('.chat-messages');
 			textarea = getNode('.chat textarea'),
 			chatName = getNode('.chat-name'),			
 			
@@ -47,7 +48,23 @@
 			}
 
 			if(socket !== undefined) {
-				
+
+				socket.on('output', function(data){
+					if(data.length) {
+						for(var x = 0; x<data.length; x = x + 1) {
+							var message = document.createElement('div');
+
+							message.setAttribute('class', 'chat-message');
+							message.textContent = data[x].name + ': ' + data[x].message;
+
+							messages.appendChild(message);
+							messages.insertBefore(message, messages.firstChild);					
+
+						}
+					}
+				});
+
+			
 				socket.on('status', function(data) {
 					setStatus((typeof data === 'object') ? data.message : data);
 

@@ -12,8 +12,11 @@ var mongo = require('mongodb').MongoClient,
 			    sendStatus = function(s) {
 				socket.emit('status', s);
 				};
-
-		
+			
+			col.find().limit(100).sort({_id: -1}).toArray(function(err, res){
+				if(err) throw err;
+				socket.emit('output', res);
+			});		
 
 
 			socket.on('input', function(data){
@@ -21,18 +24,21 @@ var mongo = require('mongodb').MongoClient,
 				var name = data.name,
 				    message = data.message;
 				    whitespacePattern = /^\s*$/;
-	if(whitespacePattern.test(name) || whitespacePattern.test(message)){ 
-			sendStatus('Nombre y mensaje son requeridos!');
+					if(whitespacePattern.test(name) || whitespacePattern.test(message)){ 
+						sendStatus('Nombre y mensaje son requeridos!');
 
-	}else{
-		col.insert({name: name, message: message}, function() {
-			sendStatus({					
-					message: "Mesaje enviado",
-					clear: true
-				});	
+					}else{
+						col.insert({name: name, message: message}, function() {
+						
+						client.emit('output', [data]);
+						
+						sendStatus({					
+							message: "Mesaje enviado",
+							clear: true
+						});	
+						});		
+		    			     }
 			});		
-		    }
-		});		
+		});
 	});
-});
 
